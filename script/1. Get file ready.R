@@ -20,7 +20,8 @@ protMeta.wg <- protMeta %>%
 
 protMeta.wgc <- protMeta.wg %>% 
   group_by(id,age,treat) %>% 
-  summarize(cmean=comb_mean(wg,wgsd),cn=sum(n),
+  summarize(cmean=comb_mean(wg,wgsd),
+            cn=sum(n),
             csd=comb_sd(wg,n,wgsd)) %>% 
   filter(!is.na(cmean))
 
