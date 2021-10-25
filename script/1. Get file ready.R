@@ -49,3 +49,28 @@ print(summary(mon), digits=2)
 mon.r <- metareg(mon, age)
 
 print(mon.r, digits=2)
+
+
+# Revised data with protein content ---------------------------------------
+protMeta.rev <- read.csv("data/if-1022-rqq.csv")
+
+protMeta.wg.rev <- protMeta.rev %>% 
+  select(id, author, year, pro, n, age, wg, wgsd) %>% 
+  mutate(treat=case_when(pro=="hm"~"hm",TRUE~"fm")) %>% 
+  filter(age != 0)
+
+protMeta.wgc.rev <- protMeta.wg.rev %>% 
+  group_by(id,age,pro,treat) %>% 
+  summarize(cmean=comb_mean(wg,wgsd),
+            cn=sum(n),
+            csd=comb_sd(wg,n,wgsd)) %>% 
+  filter(!is.na(cmean))
+
+
+# cast data to wide format
+wgc.m.rev <- melt(protMeta.wgc.rev,id=c("id","age","treat","pro"))
+wgc.d.rev <- dcast(wgc.m.rev,id+age+pro~variable+treat)
+
+write.csv(wgc.d.rev,file = "data/revised protein and growth.csv",row.names = F)
+# 数据合并后重新导入
+wgc.d.revised <- read.csv("data/revised protein and growth-merged.csv")
