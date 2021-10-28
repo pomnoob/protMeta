@@ -32,7 +32,6 @@ wgc.d <- dcast(wgc.m,id+age~variable+treat)
 # need to combine month 5 and 6 as month 5 has only one study
 wgc.d$age[wgc.d$age==6] <- 5
 
-
 # Meta-analysis -----------------------------------------------------------
 
 
@@ -74,3 +73,21 @@ wgc.d.rev <- dcast(wgc.m.rev,id+age+pro~variable+treat)
 write.csv(wgc.d.rev,file = "data/revised protein and growth.csv",row.names = F)
 # 数据合并后重新导入
 wgc.d.revised <- read.csv("data/revised protein and growth-merged.csv")
+
+
+# Revised data meta analysis ----------------------------------------------
+
+revised.m4 <- wgc.d.revised %>% 
+  filter(age==4)
+
+rem4 <- metacont(cn_fm,cmean_fm,csd_fm,
+                cn_hm,cmean_hm,csd_hm,
+                subgroup = pro,
+                data = revised.m4,
+                tau.common=F)
+
+print(summary(rem4), digits=2)
+
+rem4.r <- metareg(rem4, pro)
+
+print(rem4.r, digits=2) 
