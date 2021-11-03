@@ -39,13 +39,11 @@ wgc.oa.meta <- metacont(cn_fm,cmean_fm,csd_fm,
                 studlab = label,
                 subgroup = age,
                 data = wgc.d,
-                tau.common=T)
+                tau.common=F)
 
 print(summary(wgc.oa.meta), digits=2)
 
-# forest(wgc.oa.meta,overall = T,
-#        label.right = "Higher in Infant Formula",
-#        label.left = "Higher in Human Milk")
+forest(wgc.oa.meta,overall = T)
 
 mon.r <- metareg(wgc.oa.meta, age)
 
@@ -75,10 +73,13 @@ ggplot(data = sub.wg)+
 
   )+
   annotate("text",x=4,y=-1,parse=T,label="'estimate = 0.50 [0.02;0.98], p = 0.04,'*I^2 == '90.8%'",size=8)+
+  annotate("text",x=1,y=4,label="n.s.",size=8)+
+  annotate("text",x=2,y=4,label="n.s.",size=8)+
+  annotate("text",x=3,y=4,label="n.s.",size=8)+
   annotate("text",x=4,y=4,label="*",size=8)+
   annotate("text",x=5,y=4,label="*",size=8)+
   xlab("Infant age")+
-  ylab("Mean difference of Weight gain (gram)")
+  ylab("Mean difference of Weight gain (gram/day)")
   
 
 # Subgroup analysis for protein content -----------------------------------
@@ -89,7 +90,7 @@ protMeta.m <- protMeta.m %>%
 
 sub.pro <- protMeta.m %>% 
   mutate(treat=case_when(pro==0~"hm",TRUE~"fm")) %>% # 把所有配方粉的组合并为一个标签
-  select(id,author,year,treat,pro,n,age,wg,wgsd) %>% 
+  select(id,author,year,treat,pro,cho,n,age,wg,wgsd) %>% 
   mutate(label=paste(author," (",year," )")) %>% 
   filter(age != 0)
 
@@ -128,7 +129,10 @@ for (i in 1:length(test)) {
   cc <- dplyr::slice(cc,-which(cc$pro==0))
   
   prot.sub <- rbind(prot.sub,cc)
+  
 }
+
+write.csv(prot.sub,file = "data/调整后的数据-lkf.csv",row.names = F)
 
 #删掉pro=1.4的研究
 #pro=10改成2.5
@@ -138,7 +142,7 @@ prot.sub2 <- prot.sub %>%
   mutate(pro=case_when(pro==10~2.5,TRUE~pro))
 
 revised.m4 <- prot.sub2 %>% 
-  filter(age==6)
+  filter(age==4)
 
 rem4 <- metacont(cn_fm,cmean_fm,csd_fm,
                  cn_hm,cmean_hm,csd_hm,
@@ -148,19 +152,207 @@ rem4 <- metacont(cn_fm,cmean_fm,csd_fm,
 
 print(summary(rem4), digits=2)
 
-rem4.r <- metareg(rem4, pro+age)
+rem4.r <- metareg(rem4, pro)
 
 print(rem4.r, digits=2) 
 
 forest(rem4,overall = T)
 
-# cc <- wgc.d.rev %>% 
-#   slice(testr[[7]])
-# 
-# 
-# for (i in which(cc$pro!=0)) {
-#   cc[i,4:9] <- cc[i,4:9]+cc[which(cc$pro==0),4:9]
-# }
-# 
-# cc <- dplyr::slice(cc,-which(cc$pro==0))
-# prot.sub <- rbind(prot.sub,cc)
+# plot for protein groups
+sub.pro <- data.frame(pro=c("1.7","1.8","1.9","2.0","2.1","2.2","over 2.2"),
+                     md=c(2.35,2.03,2.37,1.26,2.34,2.60,3.07),
+                     cil=c(1.53,1.39,1.32,-1.58,1.64,2.03,1.75),
+                     ciu=c(3.18,2.68,3.43,4.10,3.04,3.17,4.39),
+                     ord=c(1:7))
+
+ggplot(data = sub.pro)+
+  geom_point(aes(x=pro,y=md))+
+  geom_line(aes(x=pro,y=md,group=1),size=1)+
+  geom_line(aes(x=pro,y=cil,group=1), color="gray",alpha=0.5)+
+  geom_line(aes(x=pro,y=ciu,group=1), color="gray",alpha=0.5)+
+  geom_ribbon(aes(x=pro,ymax=ciu,ymin=cil,group=1),fill="gray", alpha=.3)+
+  geom_hline(yintercept = 0)+
+  theme_minimal()+theme(
+    panel.border = element_rect(color = "black",fill = NA),
+    panel.grid = element_blank(),
+    axis.text.x = element_text(color = "black",size = 15),
+    axis.text.y = element_text(color = "black",size = 15),
+    axis.title = element_text(color = "black",size = 20),
+    
+  )+
+  annotate("text",x=1,y=4.5,label="*",size=8)+
+  annotate("text",x=2,y=4.5,label="*",size=8)+
+  annotate("text",x=3,y=4.5,label="*",size=8)+
+  annotate("text",x=4,y=4.5,label="n.s.",size=8)+
+  annotate("text",x=5,y=4.5,label="*",size=8)+
+  annotate("text",x=6,y=4.5,label="*",size=8)+
+  annotate("text",x=7,y=4.5,label="*",size=8)+
+  
+  xlab("Proten Content (gram/100kcal)")+
+  ylab("Mean difference of Weight gain (gram/day)")
+
+# Subgroup analysis for CHO content -----------------------------------
+
+protMeta.m <- read.csv("data/if-1022-rqq - rename hm.csv")
+protMeta.m <- protMeta.m %>% 
+  mutate(pro=case_when(pro>2.2~10,TRUE~pro))
+
+sub.cho <- protMeta.m %>% 
+  mutate(treat=case_when(pro==0~"hm",TRUE~"fm")) %>% # 把所有配方粉的组合并为一个标签
+  select(id,author,year,treat,pro,cho,n,age,wg,wgsd) %>% 
+  mutate(label=paste(author," (",year," )")) %>% 
+  filter(age != 0)
+
+sub.cho.c <- sub.cho %>% 
+  group_by(label,age,cho,treat) %>% 
+  summarize(cmean=comb_mean(wg,wgsd),
+            cn=sum(n),
+            csd=comb_sd(wg,n,wgsd)) %>% 
+  filter(!is.na(cmean))
+
+
+# cast data to wide format
+sub.cho.m <- melt(sub.cho.c,id=c("label","age","treat","cho"))
+wgc.dcho.rev <- dcast(sub.cho.m,label+age+cho~variable+treat)
+# 删掉没有CHO数据的研究
+
+wgc.dcho.rev <- filter(wgc.dcho.rev, !is.na(cho))
+
+# 无数据的研究用0代替
+wgc.dcho.rev[is.na(wgc.dcho.rev)] <- 0
+
+cho.sub <- wgc.dcho.rev %>% 
+  slice(71)
+
+test1 <- wgc.dcho.rev %>% 
+  group_by(label,age) %>% 
+  group_rows()
+
+for (i in 1:length(test1)) {
+  
+  cc <- dplyr::slice(wgc.dcho.rev,test1[[i]])
+  
+  for (j in which(cc$cho!=0)) {
+    
+    cc[j,4:9] <- cc[j,4:9]+cc[which(cc$cho==0),4:9]
+    
+  }
+  
+  cc <- dplyr::slice(cc,-which(cc$cho==0))
+  
+  cho.sub <- rbind(cho.sub,cc)
+  
+}
+
+write.csv(prot.sub,file = "data/调整后的数据-lkf.csv",row.names = F)
+
+#删掉pro=1.4的研究
+#pro=10改成2.5
+
+
+cho.m4 <- cho.sub %>% 
+  filter(age==4)
+
+rem4.cho <- metacont(cn_fm,cmean_fm,csd_fm,
+                 cn_hm,cmean_hm,csd_hm,
+                 subgroup = cho,
+                 data = cho.m4,
+                 tau.common=F)
+re.cho <- metacont(cn_fm,cmean_fm,csd_fm,
+                  cn_hm,cmean_hm,csd_hm,
+                  subgroup = cho,
+                  data = cho.sub,
+                  tau.common=F)
+
+print(summary(rem4.cho), digits=2)
+print(summary(re.cho), digits=2)
+
+re.cho.r <- metareg(re.cho, cho+age)
+
+print(re.cho.r, digits=2) 
+
+forest(rem4,overall = T)
+
+# Subgroup analysis for CHO group -----------------------------------
+
+protMeta.m <- read.csv("data/if-1022-rqq - rename hm.csv")
+protMeta.m <- protMeta.m %>% 
+  mutate(pro=case_when(pro>2.2~10,TRUE~pro))
+
+sub.chog <- protMeta.m %>% 
+  mutate(chog=case_when(cho<=10.4&cho!=0~1,
+                        cho>=11.2~3,
+                        cho>=10.7 & cho <=11.1~2,
+                        cho==0~cho),
+         treat=case_when(pro==0~"hm",TRUE~"fm")) %>% # 把所有配方粉的组合并为一个标签
+  select(id,author,year,treat,chog,n,age,wg,wgsd) %>% 
+  mutate(label=paste(author," (",year," )")) %>% 
+  filter(age != 0)
+
+sub.chog.c <- sub.chog %>% 
+  filter(!is.na(chog)) %>% 
+  group_by(label,age,chog,treat) %>% 
+  summarize(cmean=comb_mean(wg,wgsd),
+            cn=sum(n),
+            csd=comb_sd(wg,n,wgsd)) %>% 
+  filter(!is.na(cmean))
+
+
+# cast data to wide format
+sub.chog.m <- melt(sub.chog.c,id=c("label","age","treat","chog"))
+wgc.dchog.rev <- dcast(sub.chog.m,label+age+chog~variable+treat)
+# 删掉没有CHO数据的研究
+
+wgc.dcho.rev <- filter(wgc.dcho.rev, !is.na(cho))
+
+# 无数据的研究用0代替
+wgc.dchog.rev[is.na(wgc.dchog.rev)] <- 0
+
+chog.sub <- wgc.dchog.rev %>% 
+  slice(71)
+
+testg <- wgc.dchog.rev %>% 
+  group_by(label,age) %>% 
+  group_rows()
+
+for (i in 1:length(testg)) {
+  
+  cc <- dplyr::slice(wgc.dchog.rev,testg[[i]])
+  
+  for (j in which(cc$chog!=0)) {
+    
+    cc[j,4:9] <- cc[j,4:9]+cc[which(cc$chog==0),4:9]
+    
+  }
+  
+  cc <- dplyr::slice(cc,-which(cc$chog==0))
+  
+  chog.sub <- rbind(chog.sub,cc)
+  
+}
+
+write.csv(prot.sub,file = "data/调整后的数据-lkf.csv",row.names = F)
+
+#删掉pro=1.4的研究
+#pro=10改成2.5
+
+
+chog.m4 <- chog.sub %>% 
+  filter(age==4)
+
+rem4.chog <- metacont(cn_fm,cmean_fm,csd_fm,
+                     cn_hm,cmean_hm,csd_hm,
+                     subgroup = chog,
+                     data = chog.m4,
+                     tau.common=F)
+
+re.chog <- metacont(cn_fm,cmean_fm,csd_fm,
+                   cn_hm,cmean_hm,csd_hm,
+                   subgroup = chog,
+                   data = chog.sub,
+                   tau.common=F)
+
+print(summary(rem4.chog), digits=2)
+print(summary(re.chog), digits=2)
+
+
