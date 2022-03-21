@@ -72,10 +72,10 @@ ggplot(data = sub.wg)+
     axis.title = element_text(color = "black",size = 20),
 
   )+
-  annotate("text",x=4,y=-1,parse=T,label="'estimate = 0.50 [0.02;0.98], p = 0.04,'*I^2 == '90.8%'",size=8)+
-  annotate("text",x=1,y=4,label="n.s.",size=8)+
-  annotate("text",x=2,y=4,label="n.s.",size=8)+
-  annotate("text",x=3,y=4,label="n.s.",size=8)+
+  annotate("text",x=2,y=3,parse=T,label="'estimate = 0.50 [0.02;0.98], p = 0.04,'*I^2 == '90.8%'",size=8)+
+  # annotate("text",x=1,y=4,label="n.s.",size=8)+
+  # annotate("text",x=2,y=4,label="n.s.",size=8)+
+  # annotate("text",x=3,y=4,label="n.s.",size=8)+
   annotate("text",x=4,y=4,label="*",size=8)+
   annotate("text",x=5,y=4,label="*",size=8)+
   xlab("Infant age")+
