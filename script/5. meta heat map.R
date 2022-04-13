@@ -174,17 +174,17 @@ wg_heat2 <- ggplot()+
                    expand = c(0,0)) +
   theme(
     
-    axis.title = element_text(size = 20,
+    axis.title = element_text(size = 30,
                               family = "serif"),
-    axis.text = element_text(size = 15, 
+    axis.text = element_text(size = 30, 
                              family = "serif"),
     legend.title = element_text(size = 20,
                                 family = "serif"),
-    legend.text = element_text(size = 15, 
+    legend.text = element_text(size = 20, 
                                family = "serif"),
   ) +
   ylab("Infant age\n")+
-  xlab("Protein content (g/100 kcal)")
+  xlab("\n Protein content (g/100 kcal)")
 wg_heat2
 
 
@@ -219,17 +219,17 @@ hg_heat2 <- ggplot()+
                    expand = c(0,0)) +
   theme(
     
-    axis.title = element_text(size = 20,
+    axis.title = element_text(size = 30,
                               family = "serif"),
-    axis.text = element_text(size = 15, 
+    axis.text = element_text(size = 30, 
                              family = "serif"),
     legend.title = element_text(size = 20,
                                 family = "serif"),
-    legend.text = element_text(size = 15, 
+    legend.text = element_text(size = 20, 
                                family = "serif"),
   ) +
   ylab("Infant age\n")+
-  xlab("Protein content (g/100 kcal)")
+  xlab("\n Protein content (g/100 kcal)")
 hg_heat2
 
 # BMI
@@ -263,15 +263,15 @@ bmi_heat2 <- ggplot()+
                    expand = c(0,0)) +
   theme(
     
-    axis.title = element_text(size = 20,
+    axis.title = element_text(size = 30,
                               family = "serif"),
-    axis.text = element_text(size = 15, 
+    axis.text = element_text(size = 30, 
                              family = "serif"),
     legend.title = element_text(size = 20,
                                 family = "serif"),
-    legend.text = element_text(size = 15, 
+    legend.text = element_text(size = 20, 
                                family = "serif"),
   ) +
   ylab("Infant age\n")+
-  xlab("Protein content (g/100 kcal)")
+  xlab("\n Protein content (g/100 kcal)")
 bmi_heat2
